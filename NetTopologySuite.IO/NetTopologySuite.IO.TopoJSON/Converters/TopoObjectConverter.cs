@@ -44,7 +44,9 @@ namespace NetTopologySuite.IO.Converters
                         type = ReadType(reader);
                         break;
                     case "properties":
+                        reader.Read();
                         properties = serializer.Deserialize<IAttributesTable>(reader);
+                        reader.Read();
                         break;
                     case "coordinates":
                         coordinates = ReadPoints(reader, serializer);
@@ -217,6 +219,7 @@ namespace NetTopologySuite.IO.Converters
             reader.Read();
             if (reader.TokenType != JsonToken.StartArray)
                 throw new ArgumentException("Expected StartArray but was " + reader.TokenType);
+
             reader.Read();
             List<TopoObject> list = new List<TopoObject>();
             while (reader.TokenType != JsonToken.EndArray)

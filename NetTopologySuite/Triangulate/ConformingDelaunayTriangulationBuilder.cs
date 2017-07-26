@@ -3,7 +3,6 @@ using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.Triangulate.QuadEdge;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Triangulate
 {
@@ -20,7 +19,7 @@ namespace NetTopologySuite.Triangulate
         private double _tolerance;
         private QuadEdgeSubdivision _subdiv;
 
-        private readonly IDictionary<Coordinate, Vertex> _constraintVertexMap = new OrderedDictionary<Coordinate, Vertex>();
+        private readonly IDictionary<Coordinate, Vertex> _constraintVertexMap = new SortedDictionary<Coordinate, Vertex>();
 
         /// <summary>
         /// Sets the sites (point or vertices) which will be triangulated.

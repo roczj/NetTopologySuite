@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Planargraph;
 using NetTopologySuite.Utilities;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Operation.Polygonize
 {
@@ -87,6 +87,9 @@ namespace NetTopologySuite.Operation.Polygonize
                 return;
 
             Coordinate[] linePts = CoordinateArrays.RemoveRepeatedPoints(line.Coordinates);
+            if (linePts.Length < 2)
+                return; // see #87
+
             Coordinate startPt = linePts[0];
             Coordinate endPt = linePts[linePts.Length - 1];
 
@@ -209,8 +212,8 @@ namespace NetTopologySuite.Operation.Polygonize
         
         /// <summary>
         /// Finds and labels all edgerings in the graph.
-        /// The edge rings are labelling with unique integers.
-        /// The labelling allows detecting cut edges.
+        /// The edge rings are labeling with unique integers.
+        /// The labeling allows detecting cut edges.
         /// </summary>
         /// <param name="dirEdges">A List of the DirectedEdges in the graph.</param>
         /// <returns>A List of DirectedEdges, one for each edge ring found.</returns>
@@ -225,7 +228,7 @@ namespace NetTopologySuite.Operation.Polygonize
                 if (de.Label >= 0) continue;
 
                 edgeRingStarts.Add(de);
-                var edges = FindDirEdgesInRing(de);
+                var edges = EdgeRing.FindDirEdgesInRing(de);
 
                 Label(edges, currLabel);
                 currLabel++;
@@ -360,45 +363,14 @@ namespace NetTopologySuite.Operation.Polygonize
         }
 
         /// <summary>
-        /// Traverses a ring of DirectedEdges, accumulating them into a list.
-        /// This assumes that all dangling directed edges have been removed
-        /// from the graph, so that there is always a next dirEdge.
-        /// </summary>
-        /// <param name="startDE">The DirectedEdge to start traversing at.</param>
-        /// <returns>A List of DirectedEdges that form a ring.</returns>
-        private static IEnumerable<DirectedEdge> FindDirEdgesInRing(PolygonizeDirectedEdge startDE)
-        {
-            PolygonizeDirectedEdge de = startDE;
-            IList<DirectedEdge> edges = new List<DirectedEdge>();
-            do 
-            {
-                edges.Add(de);
-                de = de.Next;
-                Assert.IsTrue(de != null, "found null DE in ring");
-                Assert.IsTrue(de == startDE || ! de.IsInRing, "found DE already in ring");
-            }
-            while (de != startDE);
-            return edges;
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="startDE"></param>
         /// <returns></returns>
         private EdgeRing FindEdgeRing(PolygonizeDirectedEdge startDE)
         {
-            PolygonizeDirectedEdge de = startDE;
-            EdgeRing er = new EdgeRing(_factory);
-            do 
-            {
-                er.Add(de);
-                de.Ring = er;
-                de = de.Next;
-                Assert.IsTrue(de != null, "found null DE in ring");
-                Assert.IsTrue(de == startDE || ! de.IsInRing, "found DE already in ring");
-            }
-            while (de != startDE);
+            var er = new EdgeRing(_factory);
+            er.Build(startDE);
             return er;
         }
 
@@ -414,8 +386,7 @@ namespace NetTopologySuite.Operation.Polygonize
         public ICollection<ILineString> DeleteDangles()
         {
             var nodesToRemove = FindNodesOfDegree(1);
-            Set<ILineString> dangleLines = new Set<ILineString>();
-
+            HashSet<ILineString> dangleLines = new HashSet<ILineString>();
             Stack<Node> nodeStack = new Stack<Node>();
             foreach (Node node in nodesToRemove)
                 nodeStack.Push(node);
@@ -443,7 +414,10 @@ namespace NetTopologySuite.Operation.Polygonize
                         nodeStack.Push(toNode);
                 }
             }
-            return dangleLines.AsReadOnly();
+
+            var dangleArray = new ILineString[dangleLines.Count];
+            dangleLines.CopyTo(dangleArray, 0);
+            return new ReadOnlyCollection<ILineString>(dangleArray);
                 //new ArrayList(dangleLines.CastPlatform());
         }
 

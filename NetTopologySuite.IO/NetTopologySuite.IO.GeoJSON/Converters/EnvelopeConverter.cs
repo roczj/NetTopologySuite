@@ -1,4 +1,6 @@
-﻿namespace NetTopologySuite.IO.Converters
+﻿using System.Globalization;
+
+namespace NetTopologySuite.IO.Converters
 {
     using System;
     using System.Diagnostics;
@@ -13,9 +15,12 @@
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             Envelope envelope = value as Envelope;
-            if (envelope == null) return;
+            if (envelope == null)
+            {
+                writer.WriteToken(null);
+                return;
+            }
 
-            writer.WritePropertyName("bbox");
             writer.WriteStartArray();
             writer.WriteValue(envelope.MinX);
             writer.WriteValue(envelope.MinY);
@@ -30,19 +35,25 @@
             Debug.Assert((string)reader.Value == "bbox");
             reader.Read(); // move to array start
 
-            JArray envelope = serializer.Deserialize<JArray>(reader);
-            Debug.Assert(envelope.Count == 4);
+            if (reader.TokenType != JsonToken.Null)
+            {
+                JArray envelope = serializer.Deserialize<JArray>(reader);
+                Debug.Assert(envelope.Count == 4);
 
-            double minX = Double.Parse((string) envelope[0]);
-            double minY = Double.Parse((string) envelope[1]);
-            double maxX = Double.Parse((string) envelope[2]);
-            double maxY = Double.Parse((string) envelope[3]);
+                double minX = Double.Parse((string) envelope[0], NumberFormatInfo.InvariantInfo);
+                double minY = Double.Parse((string) envelope[1], NumberFormatInfo.InvariantInfo);
+                double maxX = Double.Parse((string) envelope[2], NumberFormatInfo.InvariantInfo);
+                double maxY = Double.Parse((string) envelope[3], NumberFormatInfo.InvariantInfo);
 
-            Debug.Assert(minX <= maxX);
-            Debug.Assert(minY <= maxY);
+                Debug.Assert(minX <= maxX);
+                Debug.Assert(minY <= maxY);
+
+                reader.Read(); // move away from array end
+                return new Envelope(minX, maxX, minY, maxY);
+            }
 
             reader.Read(); // move away from array end
-            return new Envelope(minX, minY, maxX, maxY);
+            return null;
         }
 
         public override bool CanConvert(Type objectType)

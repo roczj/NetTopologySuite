@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using GeoAPI.Geometries;
 using NetTopologySuite.CoordinateSystems;
 using NetTopologySuite.Features;
 using Newtonsoft.Json;
@@ -19,63 +21,104 @@ namespace NetTopologySuite.IO.Converters
 
             FeatureCollection coll = value as FeatureCollection;
             if (coll == null)
+            {
+                if (serializer.NullValueHandling == NullValueHandling.Ignore)
+                {
+                    writer.WriteToken(null);
+                }
                 return;
+            }
 
             writer.WriteStartObject();
-            writer.WritePropertyName("features");
-            serializer.Serialize(writer, coll.Features);
             writer.WritePropertyName("type");
             writer.WriteValue(coll.Type);
-            if (coll.CRS != null)
+            writer.WritePropertyName("features");
+            serializer.Serialize(writer, coll.Features);
+            if (serializer.NullValueHandling == NullValueHandling.Include || coll.CRS != null)
             {
                 writer.WritePropertyName("crs");
                 serializer.Serialize(writer, coll.CRS);
+            }
+            var bbox = coll.BoundingBox;
+            if (serializer.NullValueHandling == NullValueHandling.Include || bbox != null)
+            {
+                writer.WritePropertyName("bbox");
+                serializer.Serialize(writer, bbox, typeof(Envelope));
             }
             writer.WriteEndObject();
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Null) return null;
+            if (reader.TokenType == JsonToken.Null)
+                return null;
 
-            reader.Read();
+            bool read = reader.Read();
             FeatureCollection fc = new FeatureCollection();
-            while (reader.TokenType != JsonToken.EndObject)
+            while (reader.TokenType == JsonToken.PropertyName)
             {
-                if (reader.TokenType != JsonToken.PropertyName)
-                    throw new ArgumentException("Expected a property name.");                    
                 string val = (string)reader.Value;
-                if (val == "features")
+                switch (val)
                 {
-                    reader.Read();
-                    if (reader.TokenType != JsonToken.StartArray)
-                        throw new ArgumentException("Expected token '[' not found.");
+                    case "features":
+                        // move to begin of array
+                        read = reader.Read();
+                        if (reader.TokenType != JsonToken.StartArray)
+                            throw new ArgumentException("Expected token '[' not found.");
 
-                    reader.Read();
-                    while (reader.TokenType != JsonToken.EndArray)
-                        fc.Add(serializer.Deserialize<Feature>(reader));
-                    reader.Read();
-                    continue;
-                }
-                if (val == "type")
-                {
-                    reader.Read();
-                    if (reader.TokenType != JsonToken.String && (string) reader.Value != "FeatureCollection")
-                        throw new ArgumentException("Expected value 'FeatureCollection' not found.");
-                    reader.Read();
-                    continue;
-                }
-                if (val == "crs")
-                {
-                    reader.Read();
-                    fc.CRS = serializer.Deserialize<ICRSObject>(reader);                    
-                    continue;    
-                }
+                        // move to first feature
+                        read = reader.Read();
+                        while (read && reader.TokenType != JsonToken.EndArray)
+                        {
+                            fc.Add(serializer.Deserialize<Feature>(reader));
+                            read = reader.Read();
+                        }
+                        read = reader.Read();
+                        break;
+                    case "type":
+                        read = reader.Read();
+                        if (reader.TokenType != JsonToken.String && (string)reader.Value != "FeatureCollection")
+                            throw new ArgumentException("Expected value 'FeatureCollection' not found.");
+                        read = reader.Read();
+                        break;
+                    case "bbox":
+                        fc.BoundingBox = serializer.Deserialize<Envelope>(reader);
+                        /*
+                        read = reader.Read();
+                        if (reader.TokenType != JsonToken.StartArray)
+                            throw new ArgumentException("Expected token '{' not found.");
 
-                // additional members are ignored: see https://code.google.com/p/nettopologysuite/issues/detail?id=186
-                reader.Read(); // read property value
-                reader.Read(); // move next                
+                        var env = serializer.Deserialize<double[]>(reader);
+                        fc.BoundingBox = new Envelope(env[0], env[2], env[1], env[3]);
+
+                        if (reader.TokenType != JsonToken.EndArray)
+                            throw new ArgumentException("Expected token '}' not found.");
+
+                        read = reader.Read();
+                        */
+                        break;
+                    case "crs":
+                        read = reader.Read();
+                        fc.CRS = serializer.Deserialize<ICRSObject>(reader);
+                        break;
+                    default:
+                        // additional members are ignored: see https://code.google.com/p/nettopologysuite/issues/detail?id=186
+                        /*
+                         * see also: http://gis.stackexchange.com/a/25309/463
+                         * "you can have a properties element at the top level of a feature collection, 
+                         * but don't expect any tools to know its there"
+                         */
+                        read = reader.Read(); // move next                        
+                        // jump to next property
+                        while (read && reader.TokenType != JsonToken.PropertyName)
+                            read = reader.Read();
+                        break;
+                }
             }
+
+            if (read && reader.TokenType != JsonToken.EndObject)
+                throw new ArgumentException("Expected token '}' not found.");
+
             return fc;
         }
 

@@ -23,7 +23,10 @@ namespace NetTopologySuite.IO.Converters
         {
             IGeometry geom = value as IGeometry;
             if (geom == null)
+            {
+                writer.WriteNull();
                 return;
+            }
 
             writer.WriteStartObject();
 
@@ -34,25 +37,43 @@ namespace NetTopologySuite.IO.Converters
             switch (geomType)
             {
                 case GeoJsonObjectType.Point:
-                    serializer.Serialize(writer, geom.Coordinate);
+                    if (serializer.NullValueHandling == NullValueHandling.Include || geom.Coordinate != null)
+                    {
+                        writer.WritePropertyName("coordinates");
+                        serializer.Serialize(writer, geom.Coordinate);
+                    }
                     break;
                 case GeoJsonObjectType.LineString:
                 case GeoJsonObjectType.MultiPoint:
-                    serializer.Serialize(writer, geom.Coordinates);
+                    var linealCoords = geom.Coordinates;
+                    if (serializer.NullValueHandling == NullValueHandling.Include || linealCoords != null)
+                    {
+                        writer.WritePropertyName("coordinates");
+                        serializer.Serialize(writer, linealCoords);
+                    }
                     break;
                 case GeoJsonObjectType.Polygon:
                     IPolygon poly = geom as IPolygon;
                     Debug.Assert(poly != null);
-                    serializer.Serialize(writer, PolygonCoordinates(poly));
+                    var polygonCoords = PolygonCoordinates(poly);
+                    if (serializer.NullValueHandling == NullValueHandling.Include || polygonCoords != null)
+                    {
+                        writer.WritePropertyName("coordinates");
+                        serializer.Serialize(writer, polygonCoords);
+                    }
                     break;
 
                 case GeoJsonObjectType.MultiPolygon:
                     IMultiPolygon mpoly = geom as IMultiPolygon;
                     Debug.Assert(mpoly != null);
-                    List<List<Coordinate[]>> list = new List<List<Coordinate[]>>();
+                    var list = new List<List<Coordinate[]>>();
                     foreach (IPolygon mempoly in mpoly.Geometries)
                         list.Add(PolygonCoordinates(mempoly));
-                    serializer.Serialize(writer, list);
+                    if (serializer.NullValueHandling == NullValueHandling.Include || list.Count > 0)
+                    {
+                        writer.WritePropertyName("coordinates");
+                        serializer.Serialize(writer, list);
+                    }
                     break;
 
                 case GeoJsonObjectType.GeometryCollection:
@@ -64,7 +85,11 @@ namespace NetTopologySuite.IO.Converters
                     List<Coordinate[]> coordinates = new List<Coordinate[]>();
                     foreach (IGeometry geometry in ((IGeometryCollection)geom).Geometries)
                         coordinates.Add(geometry.Coordinates);
-                    serializer.Serialize(writer, coordinates);
+                    if (serializer.NullValueHandling == NullValueHandling.Include || coordinates.Count > 0)
+                    {
+                        writer.WritePropertyName("coordinates");
+                        serializer.Serialize(writer, coordinates);
+                    }
                     break;
             }
 
@@ -117,14 +142,18 @@ namespace NetTopologySuite.IO.Converters
             return coords;
         }
 
-        private List<object> ParseGeomCollection(JsonReader reader)
+        private List<object> ParseGeomCollection(JsonReader reader, JsonSerializer serializer)
         {
             List<object> geometries = new List<object>();
             while (reader.Read())
             {
+                // Exit if we are at the end
+                if (reader.TokenType == JsonToken.EndArray)
+                    break;
+
                 if (reader.TokenType == JsonToken.StartObject)
                 {
-                    geometries.Add(ParseGeometry(reader));
+                    geometries.Add(ParseGeometry(reader, serializer));
                 }
             }
             return geometries;
@@ -180,7 +209,7 @@ namespace NetTopologySuite.IO.Converters
             return geometries.ToArray();
         }
 
-        private IGeometry ParseGeometry(JsonReader reader)
+        private IGeometry ParseGeometry(JsonReader reader, JsonSerializer serializer)
         {
             GeoJsonObjectType? geometryType = null;
             List<object> coords = null;
@@ -205,12 +234,18 @@ namespace NetTopologySuite.IO.Converters
                     {
                         //only geom collection has "geometries"
                         reader.Read();  //read past start array tag                        
-                        coords = ParseGeomCollection(reader);
+                        coords = ParseGeomCollection(reader, serializer);
                     }
                     else if ((String)reader.Value == "coordinates")
                     {
                         reader.Read(); //read past start array tag
                         coords = ReadCoordinates(reader);
+                    }
+                    else if ((String) reader.Value == "bbox")
+                    {
+                        //Read but discard
+                        var bbox = serializer.Deserialize<Envelope>(reader);
+
                     }
                 }
             }
@@ -251,7 +286,7 @@ namespace NetTopologySuite.IO.Converters
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return ParseGeometry(reader);
+            return ParseGeometry(reader, serializer);
         }
 
         private static List<Coordinate[]> PolygonCoordinates(IPolygon polygon)

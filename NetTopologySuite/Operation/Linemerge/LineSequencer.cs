@@ -6,7 +6,6 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Planargraph;
 using NetTopologySuite.Planargraph.Algorithm;
 using NetTopologySuite.Utilities;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Operation.Linemerge
 {
@@ -66,7 +65,7 @@ namespace NetTopologySuite.Operation.Linemerge
             IMultiLineString mls = geom as IMultiLineString;
 
             // The nodes in all subgraphs which have been completely scanned
-            OrderedSet<Coordinate> prevSubgraphNodes = new OrderedSet<Coordinate>();
+            var prevSubgraphNodes = new HashSet<Coordinate>();
 
             Coordinate lastNode = null;
             IList<Coordinate> currNodes = new List<Coordinate>();
@@ -87,7 +86,7 @@ namespace NetTopologySuite.Operation.Linemerge
                 if (lastNode != null && !startNode.Equals(lastNode)) 
                 {
                     // start new connected sequence
-                    prevSubgraphNodes.AddMany(currNodes);
+                    prevSubgraphNodes.UnionWith(currNodes);
                     currNodes.Clear();
                 }                
 

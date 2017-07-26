@@ -5,7 +5,6 @@ using NetTopologySuite.IO;
 using NetTopologySuite.Triangulate;
 using NUnit.Framework;
 using ProjNet.CoordinateSystems;
-using Wintellect.PowerCollections;
 using Assert = NUnit.Framework.Assert;
 
 namespace NetTopologySuite.Samples.Tests.Various
@@ -31,12 +30,6 @@ namespace NetTopologySuite.Samples.Tests.Various
         public void ensure_ProjNet_assembly_is_strongly_named()
         {
             AssertStronglyNamedAssembly(typeof(Datum));
-        }
-
-        [Test, Category("Issue174")]
-        public void ensure_PowerCollections_assembly_is_strongly_named()
-        {
-            AssertStronglyNamedAssembly(typeof(OrderedSet<object>));
         }
 
         [Test, Category("Issue174")]

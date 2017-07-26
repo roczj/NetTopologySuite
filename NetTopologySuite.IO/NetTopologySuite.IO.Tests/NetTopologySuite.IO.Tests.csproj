@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(SolutionDir)BuildTools\GeoAPI.Reference.targets" Condition="Exists('$(SolutionDir)BuildTools\GeoAPI.Reference.targets')" />
   <PropertyGroup>
     <fwVersion Condition=" '$(fwVersion)' == '' ">net40-client</fwVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,7 +16,6 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,9 +37,6 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GeoAPI">
-      <HintPath>$(SolutionDir)packages\GeoAPI.1.7.3.1\lib\$(fwVersion)\GeoAPI.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>$(SolutionDir)packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
@@ -47,24 +44,17 @@
     <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>$(SolutionDir)packages\Npgsql.2.0.12.1\lib\net40\Mono.Security.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(SolutionDir)packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SolutionDir)packages\Npgsql.2.0.12.1\lib\net40\Npgsql.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.mocks, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
-    </Reference>
-    <Reference Include="pnunit.framework, Version=1.0.4109.34242, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="policy.2.0.Npgsql">
       <HintPath>$(SolutionDir)packages\Npgsql.2.0.12.1\lib\net40\policy.2.0.Npgsql.dll</HintPath>
@@ -93,7 +83,9 @@
     <Compile Include="GeoJSON\FeatureConverterTest.cs" />
     <Compile Include="GeoJSON\GeoJsonSerializerTest.cs" />
     <Compile Include="GeoJSON\GeoJsonWriterTest.cs" />
-    <Compile Include="GeoJSON\Issue148.cs" />
+    <Compile Include="GeoJSON\GitHubIssues.cs" />
+    <Compile Include="GeoJSON\Issue145Fixture.cs" />
+    <Compile Include="GeoJSON\Issue148Fixture.cs" />
     <Compile Include="GeoJSON\Issue16Fixture.cs" />
     <Compile Include="GeoJSON\Issue32Fixture.cs" />
     <Compile Include="GeoJSON\LinkedCRSTest.cs" />
@@ -105,21 +97,24 @@
     <Compile Include="ShapeFile.Extended\ShapeDataReaderTests.cs" />
     <Compile Include="ShapeFile.Extended\DbaseReaderTests.cs" />
     <Compile Include="ShapeFile.Extended\HelperMethods.cs" />
+    <Compile Include="ShapeFile.Extended\ShapefileDataWriterTests.cs" />
     <Compile Include="ShapeFile.Extended\ShapeReaderTests.cs" />
     <Compile Include="ShapeFile.Extended\TempFileWriter.cs" />
     <Compile Include="SpatiaLiteFixture.cs" />
     <Compile Include="SqlGeographyFixture.cs" />
     <Compile Include="SqlGeometryFixture.cs" />
+    <Compile Include="Streams\ByteStreamProviderFixture.cs" />
     <Compile Include="TopoJSON\TopoReaderData.cs" />
     <Compile Include="TopoJSON\TopoJsonReaderFixture.cs" />
     <Compile Include="TopoJSON\TopoJsonWriterFixture.cs" />
     <Compile Include="TopoJSON\TopoWriterData.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GeoJSON\World_AL6.GeoJson" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NetTopologySuite.IO.ShapeFile.Extended\NetTopologySuite.IO.ShapeFile.Extended.csproj">
+    <ProjectReference Include="..\NetTopologySuite.IO.ShapeFile.Extended\NetTopologySuite.IO.ShapeFile.Extended.csproj">
       <Project>{4f36dd38-3cce-4a19-93c2-a9f8b27ea430}</Project>
       <Name>NetTopologySuite.IO.ShapeFile.Extended</Name>
     </ProjectReference>
@@ -163,13 +158,16 @@
       <Project>{0e4430fb-e15b-447b-a21c-6481bc708dde}</Project>
       <Name>NetTopologySuite.IO.TopoJSON</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NetTopologySuite.IO\NetTopologySuite.IO.csproj">
+      <Project>{e377580e-61c9-4943-b98b-085d51b32578}</Project>
+      <Name>NetTopologySuite.IO</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -2,6 +2,9 @@ using System;
 using GeoAPI.Geometries;
 using IList = System.Collections.Generic.IList<object>;
 using System.Collections.Generic;
+#if NET35
+using System.Linq;
+#endif
 using NetTopologySuite.Utilities;
 
 namespace NetTopologySuite.Index.Strtree
@@ -107,10 +110,10 @@ namespace NetTopologySuite.Index.Strtree
             Assert.IsTrue(childBoundables.Count != 0);
             var parentBoundables = new List<IBoundable<T, TItem>>();
             parentBoundables.Add(CreateNode(newLevel));
-            var castedChildBoundables = PlatformUtilityEx.CastPlatform(childBoundables);
-            var sortedChildBoundables =
-                new Wintellect.PowerCollections.BigList<IBoundable<T, TItem>>(castedChildBoundables);
-            sortedChildBoundables.Sort(GetComparer());
+
+            // JTS does a stable sort here.  List<T>.Sort is not stable.
+            var sortedChildBoundables = CollectionUtil.StableSort(childBoundables, GetComparer());
+
             foreach (IBoundable<T, TItem> childBoundable in sortedChildBoundables)
             {
                 if (LastNode(parentBoundables).ChildBoundables.Count == NodeCapacity)
@@ -147,7 +150,7 @@ namespace NetTopologySuite.Index.Strtree
             return CreateHigherLevels(parentBoundables, level + 1);
         }
 
-        protected AbstractNode<T, TItem> Root
+        public AbstractNode<T, TItem> Root
         {
             get
             {
@@ -363,8 +366,6 @@ namespace NetTopologySuite.Index.Strtree
         protected bool Remove(T searchBounds, TItem item)
         {
             Build();
-            //if (_itemBoundables.Count == 0)
-            //    Assert.IsTrue(_root.Bounds == null);
             return IntersectsOp.Intersects(_root.Bounds, searchBounds) && Remove(searchBounds, _root, item);
         }
 

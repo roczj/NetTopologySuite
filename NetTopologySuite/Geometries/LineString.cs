@@ -406,7 +406,7 @@ namespace NetTopologySuite.Geometries
                 if (!_points.GetCoordinate(i).Equals(_points.GetCoordinate(j)))
                 {
                     if (_points.GetCoordinate(i).CompareTo(_points.GetCoordinate(j)) > 0)
-                        CoordinateArrays.Reverse(Coordinates);
+                        CoordinateSequences.Reverse(_points);
                     return;
                 }
             }
@@ -522,6 +522,10 @@ namespace NetTopologySuite.Geometries
         /// Returns the value of the angle between the <see cref="StartPoint" />
         /// and the <see cref="EndPoint" />.
         /// </summary>
+        /// <remarks>
+        /// Use <see cref="AngleUtility"/> for a more precise computation.
+        /// </remarks>
+        [Obsolete("Use AngleUtility")]
         public double Angle
         {
             get

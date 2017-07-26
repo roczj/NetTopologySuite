@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using NetTopologySuite.Noding;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.GeometriesGraph
 {
@@ -21,7 +20,7 @@ namespace NetTopologySuite.GeometriesGraph
         ///// of the edge coordinates.
         /// </summary>
         ////private readonly ISpatialIndex<Edge> _index = new Quadtree<Edge>();
-        private readonly OrderedDictionary<OrientedCoordinateArray, Edge> _ocaMap = new OrderedDictionary<OrientedCoordinateArray, Edge>();
+        private readonly IDictionary<OrientedCoordinateArray, Edge> _ocaMap = new SortedDictionary<OrientedCoordinateArray, Edge>();
 
 
         /// <summary>

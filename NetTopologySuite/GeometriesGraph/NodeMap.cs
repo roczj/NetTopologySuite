@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using GeoAPI.Geometries;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.GeometriesGraph
 {
@@ -9,8 +8,8 @@ namespace NetTopologySuite.GeometriesGraph
     /// A map of nodes, indexed by the coordinate of the node.
     /// </summary>
     public class NodeMap
-    {        
-        private readonly IDictionary<Coordinate, Node > _nodeMap = new OrderedDictionary<Coordinate, Node>();
+    {
+        private readonly IDictionary<Coordinate, Node > _nodeMap = new SortedDictionary<Coordinate, Node>();
         private readonly NodeFactory _nodeFact;
 
         /// <summary>

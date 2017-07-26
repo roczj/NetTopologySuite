@@ -6,7 +6,6 @@ using NetTopologySuite.Algorithm;
 using NetTopologySuite.Algorithm.Locate;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Utilities;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.GeometriesGraph
 {
@@ -20,7 +19,7 @@ namespace NetTopologySuite.GeometriesGraph
         /// <summary>
         /// A map which maintains the edges in sorted order around the node.
         /// </summary>
-        protected IDictionary<EdgeEnd, EdgeEnd> edgeMap = new OrderedDictionary<EdgeEnd, EdgeEnd>();
+        protected IDictionary<EdgeEnd, EdgeEnd> edgeMap = new SortedDictionary<EdgeEnd, EdgeEnd>();
 
         /// <summary> 
         /// A list of all outgoing edges in the result, in CCW order.

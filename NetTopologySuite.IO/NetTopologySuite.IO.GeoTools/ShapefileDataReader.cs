@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Text;
 using GeoAPI.Geometries;
+using NetTopologySuite.IO.Streams;
 
 namespace NetTopologySuite.IO
 {
@@ -30,17 +32,59 @@ namespace NetTopologySuite.IO
         /// <param name="filename">The shapefile to read (minus the .shp extension)</param>
         ///<param name="geometryFactory">The GeometryFactory to use.</param>
         public ShapefileDataReader(string filename, IGeometryFactory geometryFactory)
+            :this(filename, geometryFactory, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ShapefileDataReader class.
+        /// </summary>
+        /// <param name="filename">The shapefile to read (minus the .shp extension)</param>
+        /// <param name="geometryFactory">The GeometryFactory to use.</param>
+        /// <param name="encoding">The encoding to use for reading the attribute data</param>
+        public ShapefileDataReader(string filename, IGeometryFactory geometryFactory, Encoding encoding)
         {
             if (String.IsNullOrEmpty(filename))
                 throw new ArgumentNullException("filename");
             if (geometryFactory == null)
                 throw new ArgumentNullException("geometryFactory");
+
             _open = true;
 
             string dbfFile = Path.ChangeExtension(filename, "dbf");
-            _dbfReader = new DbaseFileReader(dbfFile);
+            _dbfReader = encoding != null 
+                ? new DbaseFileReader(dbfFile, encoding) 
+                : new DbaseFileReader(dbfFile);
+
             string shpFile = Path.ChangeExtension(filename, "shp");
             _shpReader = new ShapefileReader(shpFile, geometryFactory);
+
+            _dbfHeader = _dbfReader.GetHeader();
+            _recordCount = _dbfHeader.NumRecords;
+
+            // copy dbase fields to our own array. 
+            //Insert into the first position, the shape column
+            _dbaseFields = new DbaseFieldDescriptor[_dbfHeader.Fields.Length + 1];
+            _dbaseFields[0] = DbaseFieldDescriptor.ShapeField();
+            for (int i = 0; i < _dbfHeader.Fields.Length; i++)
+                _dbaseFields[i + 1] = _dbfHeader.Fields[i];
+
+            _shpHeader = _shpReader.Header;
+            _dbfEnumerator = _dbfReader.GetEnumerator();
+            _shpEnumerator = _shpReader.GetEnumerator();
+            _moreRecords = true;
+        }
+
+        public ShapefileDataReader(IStreamProviderRegistry streamProviderRegistry, IGeometryFactory geometryFactory)
+        {
+            if (streamProviderRegistry==null)
+                throw new ArgumentNullException("streamProviderRegistry");
+            if (geometryFactory == null)
+                throw new ArgumentNullException("geometryFactory");
+            _open = true;
+
+            _dbfReader = new DbaseFileReader(streamProviderRegistry);
+            _shpReader = new ShapefileReader(streamProviderRegistry, geometryFactory);
 
             _dbfHeader = _dbfReader.GetHeader();
             _recordCount = _dbfHeader.NumRecords;
@@ -56,6 +100,7 @@ namespace NetTopologySuite.IO
             _shpEnumerator = _shpReader.GetEnumerator();
             _moreRecords = true;
         }
+
         bool _moreRecords = false;
 
         IGeometry geometry = null;

@@ -2,32 +2,37 @@
 using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Utilities;
+using NetTopologySuite.Utilities;
 
 namespace Open.Topology.TestRunner.Functions
 {
     public static class ConversionFunctions
     {
-        public static IGeometry toPoints(IGeometry g)
+        public static IGeometry ToPoints(IGeometry g1, IGeometry g2)
         {
-            return g.Factory.CreateMultiPoint(g.Coordinates);
+            var geoms = FunctionsUtil.BuildGeometry(g1, g2);
+            return FunctionsUtil.GetFactoryOrDefault(new[] { g1, g2 })
+                .CreateMultiPoint(geoms.Coordinates);
         }
 
-        public static IGeometry toLines(IGeometry g)
+        public static IGeometry ToLines(IGeometry g1, IGeometry g2)
         {
-            return g.Factory.BuildGeometry(LinearComponentExtracter.GetLines(g));
+            var geoms = FunctionsUtil.BuildGeometry(g1, g2);
+            return FunctionsUtil.GetFactoryOrDefault(new[] { g1, g2 })
+                .BuildGeometry(LinearComponentExtracter.GetLines(geoms));
         }
 
-        public static IGeometry toGeometryCollection(IGeometry g, IGeometry g2)
+        public static IGeometry ToGeometryCollection(IGeometry g, IGeometry g2)
         {
 
             var atomicGeoms = new List<IGeometry>();
-            if (g != null) addComponents(g, atomicGeoms);
-            if (g2 != null) addComponents(g2, atomicGeoms);
+            if (g != null) AddComponents(g, atomicGeoms);
+            if (g2 != null) AddComponents(g2, atomicGeoms);
             return g.Factory.CreateGeometryCollection(
                 GeometryFactory.ToGeometryArray(atomicGeoms));
         }
 
-        private static void addComponents(IGeometry g, List<IGeometry> atomicGeoms)
+        private static void AddComponents(IGeometry g, List<IGeometry> atomicGeoms)
         {
             if (!(g is IGeometryCollection))
             {

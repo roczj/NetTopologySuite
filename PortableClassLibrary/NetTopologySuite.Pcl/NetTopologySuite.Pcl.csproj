@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(SolutionDir)BuildTools\GeoAPI.Pcl.Reference.targets" Condition="Exists('$(SolutionDir)BuildTools\GeoAPI.Pcl.Reference.targets')" />
   <PropertyGroup>
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -11,11 +12,11 @@
     <RootNamespace>NetTopologySuite</RootNamespace>
     <AssemblyName>NetTopologySuite</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile147</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile336</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
+    <fwVersion Condition=" '$(fwVersion)' == '' ">portable-net403+sl5+netcore45+wpa81+wp8+MonoAndroid10+XamariniOS10+MonoTouch10</fwVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -84,8 +85,17 @@
     <Compile Include="..\..\NetTopologySuite\Features\FeatureCollection.cs">
       <Link>Features\FeatureCollection.cs</Link>
     </Compile>
+    <Compile Include="..\..\NetTopologySuite\Features\FeatureExtensions.cs">
+      <Link>Features\FeatureExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\NetTopologySuite\Features\IFeature.cs">
       <Link>Features\IFeature.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Index\KdTree\IKdNodeVisitor.cs">
+      <Link>Index\KdTree\IKdNodeVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Index\KdTree\KdTreeExtensions.cs">
+      <Link>Index\KdTree\KdTreeExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\NetTopologySuite\IO\WKTFileReader.cs">
       <Link>IO\WKTFileReader.cs</Link>
@@ -105,11 +115,41 @@
     <Compile Include="..\..\NetTopologySuite\Utilities\AlternativePriorityQueue.cs">
       <Link>Utilities\AlternativePriorityQueue.cs</Link>
     </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FunctionsUtility.cs">
+      <Link>Utilities\FunctionsUtility.cs</Link>
+    </Compile>
     <Compile Include="..\..\NetTopologySuite\Utilities\PriorityQueueNode.cs">
       <Link>Utilities\PriorityQueueNode.cs</Link>
     </Compile>
     <Compile Include="..\..\NetTopologySuite\Utilities\RToolsUtil\Token.cs">
       <Link>Utilities\RToolsUtil\Token.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\BitHelper.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\BitHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\EnumerableHelpers.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\EnumerableHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\HashSet.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\HashSet.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\IReadOnlyCollection.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\IReadOnlyCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\IReadOnlyDictionary.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\IReadOnlyDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\ISet.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\ISet.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\SortedDictionary.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\SortedDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\Generic\SortedSet.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\Generic\SortedSet.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\Collections\HashHelpers.cs">
+      <Link>Utilities\FrameworkReplacements\Collections\HashHelpers.cs</Link>
     </Compile>
     <Compile Include="..\..\SharedAssemblyVersion.cs">
       <Link>Properties\SharedAssemblyVersion.cs</Link>
@@ -1263,6 +1303,9 @@
     <Compile Include="..\..\NetTopologySuite\Utilities\BitConverter.cs">
       <Link>Utilities\BitConverter.cs</Link>
     </Compile>
+    <Compile Include="..\..\NetTopologySuite\Utilities\BitTweaks.cs">
+      <Link>Utilities\BitTweaks.cs</Link>
+    </Compile>
     <Compile Include="..\..\NetTopologySuite\Utilities\Caster.cs">
       <Link>Utilities\Caster.cs</Link>
     </Compile>
@@ -1330,6 +1373,9 @@
     <Content Include="..\..\NetTopologySuite\License.txt">
       <Link>License.txt</Link>
     </Content>
+    <Content Include="..\..\NetTopologySuite\Utilities\FrameworkReplacements\ReadMe.txt">
+      <Link>Utilities\FrameworkReplacements\ReadMe.txt</Link>
+    </Content>
     <Resource Include="..\..\NetTopologySuite\Precision\DocFiles\minClearance.png">
       <Link>Precision\DocFiles\minClearance.png</Link>
     </Resource>
@@ -1348,28 +1394,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="GeoAPI">
-      <HintPath>$(SolutionDir)packages\GeoAPI.1.7.3.1\lib\portable-net403+sl5+win8+wp8+MonoAndroid+MonoTouch\GeoAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="ProjNET">
-      <HintPath>$(SolutionDir)packages\ProjNET4GeoAPI.1.3.2\lib\portable-net403+sl5+win8+wp8+MonoAndroid+MonoTouch\ProjNET.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\PowerCollections\Source\PowerCollections.Pcl\PowerCollections.Pcl.csproj">
-      <Project>{4fe07049-9f3a-42a4-8105-b1a72fe15c67}</Project>
-      <Name>PowerCollections.Pcl</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

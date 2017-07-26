@@ -112,6 +112,9 @@ AutoTest.Net/
 # Installshield output folder
 [Ee]xpress/
 
+# VisualStudio
+.vs/
+
 # DocProject is a documentation generator add-in
 DocProject/buildhelp/
 DocProject/Help/*.HxT
@@ -192,3 +195,11 @@ NetTopologySuite.Samples.Shapefiles/ZMtest.dbf
 NetTopologySuite.Samples.Shapefiles/__empty.dbf
 NetTopologySuite.Samples.Shapefiles/__empty.shp
 NetTopologySuite.Samples.Shapefiles/__empty.shx
+/NetTopologySuite/Algorithm/HCoordinate_DD.cs
+/NetTopologySuite/Algorithm/CGAlgorithmsAP.cs
+/NetTopologySuite.IO/NetTopologySuite.IO.GeoTools/NetTopologySuite.IO.GeoTools.csproj.DotSettings
+NetTopologySuite.Samples.Shapefiles/tmp*.shp
+NetTopologySuite.Samples.Shapefiles/tmp*.shx
+NetTopologySuite.Samples.Shapefiles/tmp*.dbf
+NetTopologySuite.Samples.Shapefiles/test_arcview.shp
+NetTopologySuite.Samples.Shapefiles/test_buffer.shp

@@ -45,15 +45,17 @@ namespace NetTopologySuite.EdgeGraph
         /// Adds an edge between the coordinates orig and dest
         /// to this graph.
         /// </summary>
+        /// <remarks>
+        /// Only valid edges can be added (in particular, zero-length segments cannot be added)
+        /// </remarks>
         /// <param name="orig">the edge origin location</param>
         /// <param name="dest">the edge destination location</param>
-        /// <returns>the created edge</returns>
+        /// <returns>The created edge</returns>
+        /// <returns><value>null</value> if the edge was invalid and not added</returns>
+        /// <seealso cref="IsValidEdge(Coordinate,Coordinate)"/>
         public virtual HalfEdge AddEdge(Coordinate orig, Coordinate dest)
         {
-            int cmp = dest.CompareTo(orig);
-            // ignore zero-length edges
-            if (cmp == 0)
-                return null;
+            if (!IsValidEdge(orig, dest)) return null;
 
             // Attempt to find the edge already in the graph.
             // Return it if found.
@@ -68,6 +70,18 @@ namespace NetTopologySuite.EdgeGraph
 
             HalfEdge e = Insert(orig, dest, eAdj);
             return e;
+        }
+
+        /// <summary>
+        /// Test if an the coordinates for an edge form a valid edge (with non-zero length)
+        /// </summary>
+        /// <param name="orig">The start coordinate</param>
+        /// <param name="dest">The end coordinate</param>
+        /// <returns><value>true</value> of the edge formed is valid</returns>
+        public static bool IsValidEdge(Coordinate orig, Coordinate dest)
+        {
+            var cmp = dest.CompareTo(orig);
+            return cmp != 0;
         }
 
         /// <summary>

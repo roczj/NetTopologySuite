@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using GeoAPI.Geometries;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Operation
 {
@@ -17,6 +16,19 @@ namespace NetTopologySuite.Operation
     /// <author>Martin Davis</author>
     public class BoundaryOp
     {
+
+        public static IGeometry GetBoundary(IGeometry g)
+        {
+            var bop = new BoundaryOp(g);    
+            return bop.GetBoundary();
+        }
+
+        public static IGeometry GetBoundary(IGeometry g, IBoundaryNodeRule bnRule)
+        {
+            var bop = new BoundaryOp(g, bnRule);
+            return bop.GetBoundary();
+        }
+
         private readonly IGeometry _geom;
         private readonly IGeometryFactory _geomFact;
         private readonly IBoundaryNodeRule _bnRule;
@@ -82,7 +94,7 @@ namespace NetTopologySuite.Operation
         private Coordinate[] ComputeBoundaryCoordinates(IMultiLineString mLine)
         {
             IList<Coordinate> bdyPts = new List<Coordinate>();
-            _endpointMap = new OrderedDictionary<Coordinate, Counter>();
+            _endpointMap = new SortedDictionary<Coordinate, Counter>();
             for (int i = 0; i < mLine.NumGeometries; i++)
             {
                 ILineString line = (ILineString)mLine.GetGeometryN(i);

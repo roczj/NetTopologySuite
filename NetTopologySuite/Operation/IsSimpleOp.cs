@@ -5,7 +5,6 @@ using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.GeometriesGraph;
 using NetTopologySuite.GeometriesGraph.Index;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Operation
 {
@@ -152,8 +151,8 @@ namespace NetTopologySuite.Operation
         {
             if (mp.IsEmpty) 
                 return true;
-            
-            Set<Coordinate> points = new Set<Coordinate>();
+
+            HashSet<Coordinate> points = new HashSet<Coordinate>();
             for (int i = 0; i < mp.NumGeometries; i++)
             {
                 IPoint pt = (IPoint)mp.GetGeometryN(i);
@@ -283,7 +282,7 @@ namespace NetTopologySuite.Operation
         /// </summary>
         private bool HasClosedEndpointIntersection(GeometryGraph graph)
         {
-            IDictionary<Coordinate, EndpointInfo> endPoints = new OrderedDictionary<Coordinate, EndpointInfo>();
+            IDictionary<Coordinate, EndpointInfo> endPoints = new SortedDictionary<Coordinate, EndpointInfo>();
             foreach (Edge e in graph.Edges)
             {
                 //int maxSegmentIndex = e.MaximumSegmentIndex;

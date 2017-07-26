@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using GeoAPI.Geometries;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.GeometriesGraph;
 using NetTopologySuite.Utilities;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Operation.Valid
 {
@@ -403,7 +403,7 @@ namespace NetTopologySuite.Operation.Valid
         /// </summary>
         private void CheckNoSelfIntersectingRing(EdgeIntersectionList eiList)
         {
-            Set<Coordinate> nodeSet = new Set<Coordinate>();    
+            HashSet<Coordinate> nodeSet = new HashSet<Coordinate>();
             bool isFirst = true;
             foreach(EdgeIntersection ei in eiList)
             {                

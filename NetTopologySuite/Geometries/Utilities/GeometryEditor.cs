@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using GeoAPI.Geometries;
 #if !NET35 && !PCL
 using GeoAPI;
@@ -18,7 +19,7 @@ namespace NetTopologySuite.Geometries.Utilities
     /// Geometry objects are intended to be treated as immutable.
     /// This class allows you to "modifies" a Geometrys
     /// by traversing them, applying a user-defined
-    /// <see cref="IGeometryEditorOperation"/> or <see cref="CoordinateOperation"/>
+    /// <see cref="IGeometryEditorOperation"/>, <see cref="CoordinateSequenceOperation"/> or <see cref="CoordinateOperation"/>
     /// and creating a new Geometrys with the same structure but
     /// (possibly) modified components.
     /// <para>
@@ -46,14 +47,20 @@ namespace NetTopologySuite.Geometries.Utilities
     /// If changing the structure is required, use a <see cref="GeometryTransformer"/>.
     /// </para>
     /// <para>
-    /// This class supports the case where an edited Geometry needs to
-    /// be created under a new GeometryFactory, via the <see cref="GeometryEditor(IGeometryFactory)"/>
+    /// This class supports creating an edited Geometry 
+    /// using a different <see cref="IGeometryFactory"/> via the <see cref="GeometryEditor(IGeometryFactory)"/>
     /// constructor.
     /// Examples of situations where this is required is if the geometry is
     /// transformed to a new SRID and/or a new PrecisionModel.</para>
     /// <para>
-    /// The resulting Geometry is not checked for validity.
-    /// If validity needs to be enforced, the new Geometry's <see cref="IGeometry.IsValid"/> method should be called.</para>
+    /// Usage notes
+    /// <list type="Bullet">
+    /// <item>The resulting Geometry is not checked for validity.
+    /// If validity needs to be enforced, the new Geometry's 
+    /// <see cref="IGeometry.IsValid"/> method should be called.</item>
+    /// <item>By default the UserData of the input geometry is not copied to the result. </item>
+    /// </list>
+    /// </para>
     /// </remarks>
     /// <seealso cref="GeometryTransformer"/>
     /// <seealso cref="IGeometry.IsValid"/>
@@ -66,6 +73,8 @@ namespace NetTopologySuite.Geometries.Utilities
         /// If <tt>null</tt> the GeometryFactory of the input is used.
         /// </remarks>
         private IGeometryFactory _factory;
+
+        private bool _isUserDataCopied;
 
         /// <summary>
         /// Creates a new GeometryEditor object which will create
@@ -84,6 +93,17 @@ namespace NetTopologySuite.Geometries.Utilities
         }
 
         /// <summary>
+        /// Gets or sets a value indicating if the User Data is copied to the edit result.
+        /// If so, only the object reference is copied.
+        /// </summary>
+        public bool CopyUserData
+        {
+            get { return _isUserDataCopied; }
+            set { _isUserDataCopied = value; }
+        }
+
+
+        /// <summary>
         /// Edit the input <c>Geometry</c> with the given edit operation.
         /// Clients can create subclasses of GeometryEditorOperation or
         /// CoordinateOperation to perform required modifications.
@@ -96,6 +116,17 @@ namespace NetTopologySuite.Geometries.Utilities
             // if client did not supply a GeometryFactory, use the one from the input Geometry
             if (_factory == null)
                 _factory = geometry.Factory;
+
+            var result = EditInternal(geometry, operation);
+            if (_isUserDataCopied)
+            {
+                result.UserData = geometry.UserData;
+            }
+            return result;
+        }
+
+        private IGeometry EditInternal(IGeometry geometry, IGeometryEditorOperation operation)
+        {
             if (geometry is IGeometryCollection)
                 return EditGeometryCollection((IGeometryCollection)geometry, operation);
             if (geometry is IPolygon)
@@ -246,6 +277,11 @@ namespace NetTopologySuite.Geometries.Utilities
         /// </summary>
         public class CoordinateSequenceOperation : IGeometryEditorOperation
         {
+            public CoordinateSequenceOperation()
+                :this((s, g) => s)
+            {
+            }
+
             public CoordinateSequenceOperation(Func<ICoordinateSequence, IGeometry, ICoordinateSequence> editSequence)
             {
                 EditSequence = editSequence;
@@ -284,7 +320,7 @@ namespace NetTopologySuite.Geometries.Utilities
             ///// <param name="coordSeq">The coordinate array to operate on</param>
             ///// <param name="geometry">The geometry containing the coordinate list</param>
             /// <returns>An edited coordinate sequence (which may be the same as the input)</returns>
-            private Func<ICoordinateSequence, IGeometry, ICoordinateSequence> EditSequence { get; set; }
+            protected Func<ICoordinateSequence, IGeometry, ICoordinateSequence> EditSequence { get; set; }
         }
 
     }

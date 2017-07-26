@@ -45,39 +45,32 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>false</BootstrapperEnabled>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFrameworkVersion)' == 'v2.0' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>$(SolutionDir)$(Configuration)\$(TargetFrameworkIdentifier)$(TargetFrameworkVersion)\$(Platform)\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET20;NET35</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NET20;NET35;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunFxCop>false</RunFxCop>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <NoWarn>659,168</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>$(SolutionDir)$(Configuration)\$(TargetFrameworkIdentifier)$(TargetFrameworkVersion)\$(Platform)\</OutputPath>
-    <DefineConstants>TRACE;NET20;NET35</DefineConstants>
+    <DefineConstants>TRACE;NET20;NET35;NET40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\Release\v4.0\AnyCPU\NetTopologySuite.xml</DocumentationFile>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <NoWarn>659,168</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GeoAPI">
-      <HintPath>$(SolutionDir)packages\GeoAPI.1.7.3.1\lib\$(fwVersion)\GeoAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="ProjNet, Version=1.3.0.3, Culture=neutral, PublicKeyToken=a1f5bdcd9c6f5740, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)packages\ProjNET4GeoAPI.1.3.2\lib\$(fwVersion)\ProjNet.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -85,6 +78,18 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkVersion)' == 'v2.0' ">
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\BitHelper.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\EnumerableHelpers.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\HashSet.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\IReadOnlyCollection.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\IReadOnlyDictionary.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\ISet.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\SortedDictionary.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\Generic\SortedSet.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Collections\HashHelpers.cs" />
+    <Compile Include="Utilities\FrameworkReplacements\Runtime\CompilerServices\ExtensionAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyVersion.cs">
@@ -142,12 +147,15 @@
     <Compile Include="EdgeGraph\HalfEdge.cs" />
     <Compile Include="EdgeGraph\MarkHalfEdge.cs" />
     <Compile Include="Features\FeatureCollection.cs" />
+    <Compile Include="Features\FeatureExtensions.cs" />
     <Compile Include="Features\IFeature.cs" />
     <Compile Include="Geometries\Geometry.cs" />
     <Compile Include="Geometries\GeometryComponentFilter.cs" />
     <Compile Include="Geometries\OgcCompliantGeometryFactory.cs" />
     <Compile Include="Geometries\Utilities\GeometryMapper.cs" />
     <Compile Include="Index\Bintree\Interval.cs" />
+    <Compile Include="Index\KdTree\IKdNodeVisitor.cs" />
+    <Compile Include="Index\KdTree\KdTreeExtensions.cs" />
     <Compile Include="Index\Strtree\Interval.cs" />
     <Compile Include="IO\KML\KMLWriter.cs" />
     <Compile Include="IO\WKBHexFileReader.cs" />
@@ -492,10 +500,12 @@
     <Compile Include="Triangulate\VertexTaggedGeometryDataMapper.cs" />
     <Compile Include="Triangulate\VoronoiDiagramBuilder.cs" />
     <Compile Include="Utilities\AlternativePriorityQueue.cs" />
+    <Compile Include="Utilities\FunctionsUtility.cs" />
     <Compile Include="Utilities\PriorityQueueNode.cs" />
     <Compile Include="Utilities\Assert.cs" />
     <Compile Include="Utilities\AssertionFailedException.cs" />
     <Compile Include="Utilities\BitConverter.cs" />
+    <Compile Include="Utilities\BitTweaks.cs" />
     <Compile Include="Utilities\Caster.cs" />
     <Compile Include="Utilities\CollectionUtil.cs" />
     <Compile Include="Utilities\CoordinateArrayFilter.cs" />
@@ -517,6 +527,7 @@
     <Compile Include="Utilities\RToolsUtil\Token.cs" />
     <Compile Include="Utilities\RToolsUtil\VerbosityLevel.cs" />
     <Compile Include="Utilities\StreamTokenizer.cs" />
+    <Compile Include="Utilities\StringEx.cs" />
     <Compile Include="Utilities\UniqueCoordinateArrayFilter.cs" />
     <Compile Include="Algorithm\Distance\DiscreteHausdorffDistance.cs" />
   </ItemGroup>
@@ -540,7 +551,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="License.txt" />
-    <None Include="app.config" />
+    <Content Include="Utilities\FrameworkReplacements\ReadMe.txt" />
     <None Include="packages.config" />
     <None Include="Precision\DocFiles\minClearance.png" />
     <Content Include="Precision\PrecisionSummary.xml">
@@ -587,25 +598,13 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PowerCollections\Source\PowerCollections\PowerCollections.csproj">
-      <Project>{5821977d-ac2c-4912-bcd0-6e6b1a756167}</Project>
-      <Name>PowerCollections</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.-->
   <Target Name="BeforeBuild">
     <Message Text="Building for '$(TargetFrameworkVersion)'" />
   </Target>
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Aktivieren Sie die Wiederherstellung von NuGet-Paketen, um die fehlende Datei herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-  </Target>
+  <Import Project="$(SolutionDir)BuildTools\GeoAPI.Reference.targets" Condition="Exists('$(SolutionDir)BuildTools\GeoAPI.Reference.targets')" />
   <!--
   <Target Name="AfterBuild">
     <MSBuild Condition=" '$(Configuration)' == 'Release' AND '$(TargetFrameworkVersion)' == 'v3.5'" Projects="$(MSBuildProjectFile)" Properties="TargetFrameworkVersion=v2.0;DefineConstants=TRACE;NET20" RunEachTargetSeparately="true" ContinueOnError="true" />

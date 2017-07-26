@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
-using Wintellect.PowerCollections;
 
 namespace NetTopologySuite.Noding
 {
@@ -45,9 +44,9 @@ namespace NetTopologySuite.Noding
         }
 
         private readonly ISegmentStringMerger _merger;
-        private readonly IDictionary<OrientedCoordinateArray, ISegmentString> _ocaMap = 
-            new OrderedDictionary<OrientedCoordinateArray, ISegmentString>();
-        
+        private readonly IDictionary<OrientedCoordinateArray, ISegmentString> _ocaMap =
+            new SortedDictionary<OrientedCoordinateArray, ISegmentString>();
+
         /// <summary>
         /// Creates a dissolver with a user-defined merge strategy.
         /// </summary>

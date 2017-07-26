@@ -12,7 +12,11 @@
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WritePropertyName("coordinates");
+            if (value == null)
+            {
+                writer.WriteToken(JsonToken.Null);
+                return;
+            }
 
             List<List<Coordinate[]>> coordinatesss = value as List<List<Coordinate[]>>;
             if (coordinatesss != null)
@@ -105,7 +109,8 @@
         private static Coordinate ReadJsonCoordinate(JsonReader reader)
         {
             reader.Read();
-            if (reader.TokenType != JsonToken.StartArray) return null;
+            if (reader.TokenType != JsonToken.StartArray) 
+                return null;
 
             Coordinate c = new Coordinate();
 

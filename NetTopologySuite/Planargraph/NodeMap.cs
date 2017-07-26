@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Wintellect.PowerCollections;
 using GeoAPI.Geometries;
 
 namespace NetTopologySuite.Planargraph
@@ -9,7 +8,8 @@ namespace NetTopologySuite.Planargraph
     /// </summary>   
     public class NodeMap
     {
-        private readonly IDictionary<Coordinate, Node> _nodeMap = new OrderedDictionary<Coordinate, Node>();
+        private readonly IDictionary<Coordinate, Node> _nodeMap = new SortedDictionary<Coordinate, Node>();
+
         /*
         /// <summary>
         /// Constructs a NodeMap without any Nodes.
@@ -34,7 +34,7 @@ namespace NetTopologySuite.Planargraph
         /// <returns></returns>
         public Node Remove(Coordinate pt)
         {
-            if (_nodeMap.ContainsKey(pt))
+            if (!_nodeMap.ContainsKey(pt))
                 return null;
             Node node = _nodeMap[pt];
             _nodeMap.Remove(pt);
